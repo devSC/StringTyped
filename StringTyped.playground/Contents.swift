@@ -17,6 +17,10 @@ extension KeyNamespaceable {
     static func namespace<T: RawRepresentable>(_ key: T) -> String {
         return "\(Self.self).\(key.rawValue)"
     }
+    
+    func namespace<T: RawRepresentable>(_ key: T) -> String {
+        return "\(Self.self).\(key.rawValue)"
+    }
 }
 
 
@@ -63,6 +67,39 @@ Defaults.Onboarding.set(false, forKey: .isUserLoggedIn)
 
 let account = Defaults.Account.object(forKey: .isUserLoggedIn)
 let onboarding = Defaults.Onboarding.object(forKey: .isUserLoggedIn)
+
+
+protocol NotifySettable: KeyNamespaceable {
+    associatedtype NotifyName: RawRepresentable
+}
+
+extension NotifySettable where NotifyName.RawValue == String {
+    
+    static func notification(_ notify: NotifyName, userInfo: [AnyHashable : Any]? = nil) -> Notification {
+        let key = namespace(notify)
+        let notification = Notification(name: Notification.Name(rawValue: key))
+        notification.userInfo
+        return notification;
+    }
+    
+    static func post(_ notify: NotifyName, userInfo: [AnyHashable : Any]? = nil) {
+        
+        let key = namespace(notify)
+        let notification = Notification(name: Notification.Name(rawValue: key))
+        notification.userInfo
+        NotificationCenter.default.post(notification)
+    }
+}
+
+struct Notify {
+    struct Common: NotifySettable {
+        enum NotifyName: String {
+            case successLogin
+        }
+    }
+}
+
+Notify.Common.notification(.successLogin)
 
 
 
